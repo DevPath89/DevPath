@@ -1,3 +1,5 @@
 backend/node_modules/
 backend/.env
 backend/uploads/
+.gitignore~
+\357\200\277
