@@ -1,6 +1,6 @@
 const OurTeam = require("../models/OurTeam");
 
-// ✅ Add team member (already done)
+// ✅ Add Team Member
 exports.addTeamMember = async (req, res) => {
   try {
     const { name, position } = req.body;
@@ -12,11 +12,12 @@ exports.addTeamMember = async (req, res) => {
 
     res.status(201).json({ message: "Team member added", member });
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: "Server error" });
   }
 };
 
-// ✅ Get all team members
+// ✅ Get All Team Members
 exports.getTeamMembers = async (req, res) => {
   try {
     const team = await OurTeam.find();
@@ -26,12 +27,11 @@ exports.getTeamMembers = async (req, res) => {
   }
 };
 
-// ✅ Update team member
+// ✅ Update Team Member
 exports.updateTeamMember = async (req, res) => {
   try {
     const { name, position } = req.body;
     const updateData = { name, position };
-
     if (req.file) updateData.image = req.file.filename;
 
     const member = await OurTeam.findByIdAndUpdate(req.params.id, updateData, { new: true });
@@ -39,11 +39,12 @@ exports.updateTeamMember = async (req, res) => {
 
     res.status(200).json({ message: "Team member updated", member });
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: "Server error" });
   }
 };
 
-// ✅ Delete team member
+// ✅ Delete Team Member
 exports.deleteTeamMember = async (req, res) => {
   try {
     const member = await OurTeam.findByIdAndDelete(req.params.id);
@@ -51,6 +52,7 @@ exports.deleteTeamMember = async (req, res) => {
 
     res.status(200).json({ message: "Team member deleted" });
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: "Server error" });
   }
 };
