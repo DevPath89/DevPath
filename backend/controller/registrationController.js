@@ -1,6 +1,6 @@
 const Registration = require("../models/Registration");
 
-// ✅ Sequential UserID & Password generator (8+ chars)
+// ✅ Sequential UserID & 8-char Password generator
 const generateCredentials = async () => {
   const count = await Registration.countDocuments();
   const nextNumber = count + 1;
@@ -8,9 +8,9 @@ const generateCredentials = async () => {
 
   const userId = `Devpath${formattedNumber}`;
 
-  // Password: DPT + 3-digit number + 5 random chars (total 11 chars)
-  const randomChars = Math.random().toString(36).substring(2, 7).toUpperCase(); // 5 random alphanumeric chars
-  const password = `DPT${formattedNumber}${randomChars}`;
+  // Password: exactly 8 chars → DPT + 5 random chars
+  const randomChars = Math.random().toString(36).substring(2, 7).toUpperCase(); // 5 chars
+  const password = `DPT${randomChars}`; // total = 8
 
   return { userId, password };
 };
@@ -65,7 +65,8 @@ exports.userLogin = async (req, res) => {
 
     res.json({
       message: "Login successful",
-      userId: user.userId
+      userId: user.userId,
+      name: user.name
     });
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });
