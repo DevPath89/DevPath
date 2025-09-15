@@ -1,13 +1,16 @@
 const Registration = require("../models/Registration");
 
-// ✅ Sequential UserID & Password generator
+// ✅ Sequential UserID & Password generator (8+ chars)
 const generateCredentials = async () => {
   const count = await Registration.countDocuments();
   const nextNumber = count + 1;
   const formattedNumber = String(nextNumber).padStart(3, "0");
 
   const userId = `Devpath${formattedNumber}`;
-  const password = `DPT${formattedNumber}`;
+
+  // Password: DPT + 3-digit number + 5 random chars (total 11 chars)
+  const randomChars = Math.random().toString(36).substring(2, 7).toUpperCase(); // 5 random alphanumeric chars
+  const password = `DPT${formattedNumber}${randomChars}`;
 
   return { userId, password };
 };
