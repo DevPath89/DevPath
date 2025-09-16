@@ -23,7 +23,7 @@ exports.addTeamMember = async (req, res) => {
 
     res.status(201).json({ message: "Team member added", member });
   } catch (err) {
-    console.error(err);
+    console.error("❌ Add Team Error:", err);
     res.status(500).json({ error: "Server error" });
   }
 };
@@ -34,7 +34,7 @@ exports.getTeamMembers = async (req, res) => {
     const team = await OurTeam.find();
     res.status(200).json(team);
   } catch (err) {
-    console.error(err);
+    console.error("❌ Get Team Error:", err);
     res.status(500).json({ error: "Server error" });
   }
 };
@@ -59,7 +59,7 @@ exports.updateTeamMember = async (req, res) => {
 
     res.status(200).json({ message: "Team member updated", member });
   } catch (err) {
-    console.error(err);
+    console.error("❌ Update Team Error:", err);
     res.status(500).json({ error: "Server error" });
   }
 };
@@ -72,7 +72,7 @@ exports.deleteTeamMember = async (req, res) => {
 
     res.status(200).json({ message: "Team member deleted" });
   } catch (err) {
-    console.error(err);
+    console.error("❌ Delete Team Error:", err);
     res.status(500).json({ error: "Server error" });
   }
 };
