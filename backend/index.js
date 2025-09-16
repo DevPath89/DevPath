@@ -10,7 +10,7 @@ const app = express();
 // -----------------
 // Middleware
 app.use(express.json());                // Parse JSON bodies
-app.use(cors({ origin: "*" }));         // Hosting ke liye sab origins allow
+app.use(cors({ origin: process.env.FRONTEND_URL }));         // Hosting ke liye sab origins allow
 app.use(fileUpload());                  // ✅ Enable express-fileupload
 
 // Serve static files for uploaded images
