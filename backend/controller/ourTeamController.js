@@ -5,14 +5,22 @@ exports.addTeamMember = async (req, res) => {
   try {
     const { name, position } = req.body;
     const image = req.file ? req.file.filename : null;
-    if (!name || !position || !image) return res.status(400).json({ error: "All fields required" });
 
-    const member = new OurTeam({ name, position, image });
-    await member.save();
+    if (!name || !position || !image) {
+      return res.status(400).json({ error: "All fields are required" });
+    }
 
-    res.status(201).json({ message: "Team member added", member });
+    const newMember = new OurTeam({ name, position, image });
+    await newMember.save();
+
+    console.log("✅ Saved in DB:", newMember);
+
+    res.status(201).json({
+      message: "Team member added successfully",
+      member: newMember,
+    });
   } catch (err) {
-    console.error(err);
+    console.error("❌ Add Team Error:", err);
     res.status(500).json({ error: "Server error" });
   }
 };
@@ -39,7 +47,7 @@ exports.updateTeamMember = async (req, res) => {
 
     res.status(200).json({ message: "Team member updated", member });
   } catch (err) {
-    console.error(err);
+    console.error("❌ Update Team Error:", err);
     res.status(500).json({ error: "Server error" });
   }
 };
@@ -50,9 +58,9 @@ exports.deleteTeamMember = async (req, res) => {
     const member = await OurTeam.findByIdAndDelete(req.params.id);
     if (!member) return res.status(404).json({ error: "Member not found" });
 
-    res.status(200).json({ message: "Team member deleted" });
+    res.status(200).json({ message: "Team member deleted successfully" });
   } catch (err) {
-    console.error(err);
+    console.error("❌ Delete Team Error:", err);
     res.status(500).json({ error: "Server error" });
   }
 };

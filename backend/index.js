@@ -1,24 +1,37 @@
-const express = require('express');
-const cors = require('cors');        // ✅ Import cors
-const connectDB = require('./config/DB');
-const route = require('./routes/route');   // <-- yaha tumhara routes file import ho raha hai
-require('dotenv').config();
+const express = require("express");
+const cors = require("cors");
+const connectDB = require("./config/DB");
+const route = require("./routes/route");
+require("dotenv").config();
 
 const app = express();
 
+// -----------------
 // Middleware
-app.use(express.json());             // Parse JSON bodies
-app.use(cors());                     // ✅ Enable CORS for all origins
+app.use(express.json()); // Parse JSON bodies
+app.use(cors({ origin: "*" })); // Hosting ke liye sab origins allow
 
-// Serve static files for team images
-app.use('/uploads', express.static('uploads'));
+// Serve static files for uploaded images
+app.use("/uploads", express.static("uploads"));
 
-// Connect to MongoDB
+// -----------------
+// Connect to MongoDB (Atlas ya Hosted DB)
 connectDB();
 
+// -----------------
 // Routes
-app.use('/', route);                 // ✅ Sare routes yaha attach ho rahe hain
+app.use("/", route);
 
+// -----------------
+// Global Error Handler
+app.use((err, req, res, next) => {
+  console.error("❌ Global Error:", err.stack);
+  res.status(500).json({ error: "Something went wrong!" });
+});
+
+// -----------------
 // Start server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+});

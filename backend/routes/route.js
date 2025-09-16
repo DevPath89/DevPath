@@ -10,13 +10,19 @@ const OurTeam = require("../models/OurTeam");
 // Controllers
 const { adminLogin } = require("../controller/adminController");
 const { userRegister, userLogin } = require("../controller/registrationController");
-const { addTeamMember, getTeamMembers, updateTeamMember, deleteTeamMember } = require("../controller/ourTeamController");
+const {
+  addTeamMember,
+  getTeamMembers,
+  updateTeamMember,
+  deleteTeamMember,
+} = require("../controller/ourTeamController");
 
 // -----------------
 // Multer config for team image uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, "uploads/"),
-  filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname)),
+  filename: (req, file, cb) =>
+    cb(null, Date.now() + path.extname(file.originalname)),
 });
 const upload = multer({ storage });
 
@@ -69,7 +75,11 @@ router.get("/api/users", async (req, res) => {
 
 router.put("/api/users/:id", async (req, res) => {
   try {
-    const updatedUser = await Registration.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const updatedUser = await Registration.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
     if (!updatedUser) return res.status(404).json({ message: "User not found" });
     res.json(updatedUser);
   } catch (err) {
@@ -89,17 +99,13 @@ router.delete("/api/users/:id", async (req, res) => {
 
 // -----------------
 // Facts Section API
-router.get("/api/facts", async (req, res) => {
-  try {
-    res.json({
-      students: 0,      // Students taught so far
-      placements: 0,    // Total Placements
-      topCompanies: 0,  // Students placed in Top IT Companies
-      assistance: 0,    // Placement Assistance
-    });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+router.get("/api/facts", (req, res) => {
+  res.json({
+    students: 0,
+    placements: 0,
+    topCompanies: 0,
+    assistance: 0,
+  });
 });
 
 module.exports = router;
