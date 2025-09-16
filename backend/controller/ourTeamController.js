@@ -1,16 +1,23 @@
 const OurTeam = require("../models/OurTeam");
+const path = require("path");
 
 // ✅ Add Team Member
 exports.addTeamMember = async (req, res) => {
   try {
     const { name, position } = req.body;
-    const image = req.file ? req.file.filename : null;
 
-    if (!name || !position || !image) {
+    if (!name || !position || !req.files || !req.files.image) {
       return res.status(400).json({ error: "All fields are required" });
     }
 
-    const newMember = new OurTeam({ name, position, image });
+    const imageFile = req.files.image;
+    const imageName = Date.now() + path.extname(imageFile.name);
+    const uploadPath = path.join(__dirname, "..", "uploads", imageName);
+
+    // Save image to uploads folder
+    await imageFile.mv(uploadPath);
+
+    const newMember = new OurTeam({ name, position, image: imageName });
     await newMember.save();
 
     console.log("✅ Saved in DB:", newMember);
@@ -31,6 +38,7 @@ exports.getTeamMembers = async (req, res) => {
     const team = await OurTeam.find();
     res.status(200).json(team);
   } catch (err) {
+    console.error("❌ Get Team Error:", err);
     res.status(500).json({ error: "Server error" });
   }
 };
@@ -40,7 +48,14 @@ exports.updateTeamMember = async (req, res) => {
   try {
     const { name, position } = req.body;
     const updateData = { name, position };
-    if (req.file) updateData.image = req.file.filename;
+
+    if (req.files && req.files.image) {
+      const imageFile = req.files.image;
+      const imageName = Date.now() + path.extname(imageFile.name);
+      const uploadPath = path.join(__dirname, "..", "uploads", imageName);
+      await imageFile.mv(uploadPath);
+      updateData.image = imageName;
+    }
 
     const member = await OurTeam.findByIdAndUpdate(req.params.id, updateData, { new: true });
     if (!member) return res.status(404).json({ error: "Member not found" });

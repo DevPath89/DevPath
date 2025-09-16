@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const fileUpload = require("express-fileupload");  // ✅ Add express-fileupload
 const connectDB = require("./config/DB");
 const route = require("./routes/route");
 require("dotenv").config();
@@ -8,8 +9,9 @@ const app = express();
 
 // -----------------
 // Middleware
-app.use(express.json()); // Parse JSON bodies
-app.use(cors({ origin: "*" })); // Hosting ke liye sab origins allow
+app.use(express.json());                // Parse JSON bodies
+app.use(cors({ origin: "*" }));         // Hosting ke liye sab origins allow
+app.use(fileUpload());                  // ✅ Enable express-fileupload
 
 // Serve static files for uploaded images
 app.use("/uploads", express.static("uploads"));

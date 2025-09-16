@@ -1,6 +1,5 @@
 const express = require("express");
 const router = express.Router();
-const multer = require("multer");
 const path = require("path");
 
 // Models
@@ -18,15 +17,6 @@ const {
 } = require("../controller/ourTeamController");
 
 // -----------------
-// Multer config for team image uploads
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, "uploads/"),
-  filename: (req, file, cb) =>
-    cb(null, Date.now() + path.extname(file.originalname)),
-});
-const upload = multer({ storage });
-
-// -----------------
 // Registration Routes
 router.post("/api/registration/register", userRegister);
 router.post("/api/registration/login", userLogin);
@@ -36,10 +26,10 @@ router.post("/api/registration/login", userLogin);
 router.post("/api/admin/login", adminLogin);
 
 // -----------------
-// Our Team CRUD Routes
-router.post("/api/ourteam/add", upload.single("image"), addTeamMember);
+// Our Team CRUD Routes (express-fileupload)
+router.post("/api/ourteam/add", addTeamMember);
 router.get("/api/ourteam/all", getTeamMembers);
-router.put("/api/ourteam/:id", upload.single("image"), updateTeamMember);
+router.put("/api/ourteam/:id", updateTeamMember);
 router.delete("/api/ourteam/:id", deleteTeamMember);
 
 // -----------------
