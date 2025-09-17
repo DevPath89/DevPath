@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const fileUpload = require("express-fileupload");
+const fileUpload = require("express-fileupload");  // ✅ Add express-fileupload
 const connectDB = require("./config/DB");
 const route = require("./routes/route");
 require("dotenv").config();
@@ -9,32 +9,15 @@ const app = express();
 
 // -----------------
 // Middleware
-app.use(express.json()); // Parse JSON bodies
+app.use(express.json());                // Parse JSON bodies
+app.use(cors({ origin: process.env.FRONTEND_URL }));         // Hosting ke liye sab origins allow
+app.use(fileUpload());                  // ✅ Enable express-fileupload
 
-// ✅ CORS setup (allow only your frontend)
-app.use(
-  cors({
-    origin: process.env.FRONTEND_URL,
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true,
-  })
-);
-
-// ✅ File upload middleware (Render ke liye /tmp use hoga)
-app.use(
-  fileUpload({
-    useTempFiles: true,
-    tempFileDir: "/tmp/", // Render supports /tmp
-    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB max (optional)
-  })
-);
-
-// ⚠️ Agar Cloudinary use karoge to local uploads folder ki zarurat nahi hogi
-// Agar abhi local use karna ho to ye rakho:
+// Serve static files for uploaded images
 app.use("/uploads", express.static("uploads"));
 
 // -----------------
-// Connect to MongoDB
+// Connect to MongoDB (Atlas ya Hosted DB)
 connectDB();
 
 // -----------------
