@@ -1,6 +1,5 @@
 const express = require("express");
 const router = express.Router();
-const path = require("path");
 
 // Models
 const Registration = require("../models/Registration");
@@ -16,6 +15,13 @@ const {
   deleteTeamMember,
 } = require("../controller/ourTeamController");
 
+const {
+  getLectures,
+  addLecture,
+  updateLecture,
+  deleteLecture,
+} = require("../controller/lectureController");
+
 // -----------------
 // Registration Routes
 router.post("/api/registration/register", userRegister);
@@ -26,11 +32,18 @@ router.post("/api/registration/login", userLogin);
 router.post("/api/admin/login", adminLogin);
 
 // -----------------
-// Our Team CRUD Routes (express-fileupload)
+// Our Team CRUD Routes
 router.post("/api/ourteam/add", addTeamMember);
 router.get("/api/ourteam/all", getTeamMembers);
 router.put("/api/ourteam/:id", updateTeamMember);
 router.delete("/api/ourteam/:id", deleteTeamMember);
+
+// -----------------
+// Lectures CRUD Routes
+router.get("/api/lectures", getLectures);
+router.post("/api/lectures", addLecture);
+router.put("/api/lectures/:id", updateLecture);
+router.delete("/api/lectures/:id", deleteLecture);
 
 // -----------------
 // Dashboard Counts

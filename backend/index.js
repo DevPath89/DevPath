@@ -1,23 +1,40 @@
 const express = require("express");
 const cors = require("cors");
-const fileUpload = require("express-fileupload");  // ✅ Add express-fileupload
-const connectDB = require("./config/DB");
-const route = require("./routes/route");
+const fileUpload = require("express-fileupload");
+const fs = require("fs");
+const path = require("path");
 require("dotenv").config();
+
+// DB Connection
+const connectDB = require("./config/DB");
+
+// Routes
+const route = require("./routes/route");
 
 const app = express();
 
 // -----------------
-// Middleware
-app.use(express.json());                // Parse JSON bodies
-app.use(cors({ origin: process.env.FRONTEND_URL }));         // Hosting ke liye sab origins allow
-app.use(fileUpload());                  // ✅ Enable express-fileupload
-
-// Serve static files for uploaded images
-app.use("/uploads", express.static("uploads"));
+// Ensure uploads folder exists
+if (!fs.existsSync("uploads")) {
+  fs.mkdirSync("uploads");
+}
 
 // -----------------
-// Connect to MongoDB (Atlas ya Hosted DB)
+// Middleware
+app.use(express.json()); // Parse JSON
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL || "*", // frontend URL allow karo
+    credentials: true,
+  })
+);
+app.use(fileUpload());
+
+// Serve static files for uploaded videos/images
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+// -----------------
+// Connect DB
 connectDB();
 
 // -----------------
