@@ -1,10 +1,13 @@
 const express = require("express");
+const mongoose = require("mongoose");
 const router = express.Router();
 
+// -----------------
 // Models
 const Registration = require("../models/Registration");
 const OurTeam = require("../models/OurTeam");
 
+// -----------------
 // Controllers
 const { adminLogin } = require("../controller/adminController");
 const { userRegister, userLogin } = require("../controller/registrationController");
@@ -50,18 +53,20 @@ router.delete("/api/lectures/:id", deleteLecture);
 router.get("/api/users/count", async (req, res) => {
   try {
     const count = await Registration.countDocuments();
-    res.json({ count });
+    res.status(200).json({ count });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("❌ Users Count Error:", err);
+    res.status(500).json({ error: "Server error", details: err.message });
   }
 });
 
 router.get("/api/team/count", async (req, res) => {
   try {
     const count = await OurTeam.countDocuments();
-    res.json({ count });
+    res.status(200).json({ count });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("❌ Team Count Error:", err);
+    res.status(500).json({ error: "Server error", details: err.message });
   }
 });
 
@@ -72,38 +77,53 @@ router.get("/api/users", async (req, res) => {
     const users = await Registration.find();
     res.status(200).json(users);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("❌ Get Users Error:", err);
+    res.status(500).json({ error: "Server error", details: err.message });
   }
 });
 
 router.put("/api/users/:id", async (req, res) => {
   try {
-    const updatedUser = await Registration.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true }
-    );
+    const { id } = req.params;
+
+    // Validate MongoDB ID
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ error: "Invalid user ID" });
+    }
+
+    const updatedUser = await Registration.findByIdAndUpdate(id, req.body, { new: true });
     if (!updatedUser) return res.status(404).json({ message: "User not found" });
-    res.json(updatedUser);
+
+    res.status(200).json(updatedUser);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("❌ Update User Error:", err);
+    res.status(500).json({ error: "Server error", details: err.message });
   }
 });
 
 router.delete("/api/users/:id", async (req, res) => {
   try {
-    const deletedUser = await Registration.findByIdAndDelete(req.params.id);
+    const { id } = req.params;
+
+    // Validate MongoDB ID
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ error: "Invalid user ID" });
+    }
+
+    const deletedUser = await Registration.findByIdAndDelete(id);
     if (!deletedUser) return res.status(404).json({ message: "User not found" });
-    res.json({ message: "User deleted successfully" });
+
+    res.status(200).json({ message: "User deleted successfully" });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("❌ Delete User Error:", err);
+    res.status(500).json({ error: "Server error", details: err.message });
   }
 });
 
 // -----------------
 // Facts Section API
 router.get("/api/facts", (req, res) => {
-  res.json({
+  res.status(200).json({
     students: 0,
     placements: 0,
     topCompanies: 0,
@@ -111,4 +131,11 @@ router.get("/api/facts", (req, res) => {
   });
 });
 
+// // -----------------
+// // Catch-All for Undefined API Routes
+// router.use("/api/*", (req, res) => {
+//   res.status(404).json({ error: "API route not found" });
+// });
+
+// -----------------
 module.exports = router;

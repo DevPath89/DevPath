@@ -1,33 +1,23 @@
 const OurTeam = require("../models/OurTeam");
-const cloudinary = require("../config/cloudinary"); // Make sure you have this config file
+const cloudinary = require("../config/cloudinary");
+const mongoose = require("mongoose");
 
 // ✅ Add Team Member
 exports.addTeamMember = async (req, res) => {
   try {
-    console.log("📥 Request body:", req.body);
-    console.log("📥 Request files:", req.files);
-
     const { name, position } = req.body;
+    if (!name || !position) return res.status(400).json({ error: "Name and position are required" });
 
-    if (!name || !position) {
-      return res.status(400).json({ error: "Name and position are required" });
-    }
+    if (!req.files || !req.files.image) return res.status(400).json({ error: "Image file is required" });
 
-    if (!req.files || !req.files.image) {
-      return res.status(400).json({ error: "Image file is required" });
-    }
-
-    const imageFile = req.files.image;
-
-    // Upload image to Cloudinary
-    const uploadedImage = await cloudinary.uploader.upload(imageFile.tempFilePath, {
-      folder: "team" // Optional folder name in Cloudinary
+    const uploadedImage = await cloudinary.uploader.upload(req.files.image.tempFilePath, {
+      folder: "team"
     });
 
     const member = new OurTeam({
       name,
       position,
-      image: uploadedImage.secure_url, // Save Cloudinary URL
+      image: uploadedImage.secure_url,
     });
     await member.save();
 
@@ -52,21 +42,19 @@ exports.getTeamMembers = async (req, res) => {
 // ✅ Update Team Member
 exports.updateTeamMember = async (req, res) => {
   try {
+    const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({ error: "Invalid team member ID" });
+
     const { name, position } = req.body;
     const updateData = { name, position };
 
     if (req.files && req.files.image) {
-      const imageFile = req.files.image;
-
-      // Upload new image to Cloudinary
-      const uploadedImage = await cloudinary.uploader.upload(imageFile.tempFilePath, {
-        folder: "team"
-      });
+      const uploadedImage = await cloudinary.uploader.upload(req.files.image.tempFilePath, { folder: "team" });
       updateData.image = uploadedImage.secure_url;
     }
 
-    const member = await OurTeam.findByIdAndUpdate(req.params.id, updateData, { new: true });
-    if (!member) return res.status(404).json({ error: "Member not found" });
+    const member = await OurTeam.findByIdAndUpdate(id, updateData, { new: true });
+    if (!member) return res.status(404).json({ error: "Team member not found" });
 
     res.status(200).json({ message: "Team member updated", member });
   } catch (err) {
@@ -78,8 +66,11 @@ exports.updateTeamMember = async (req, res) => {
 // ✅ Delete Team Member
 exports.deleteTeamMember = async (req, res) => {
   try {
-    const member = await OurTeam.findByIdAndDelete(req.params.id);
-    if (!member) return res.status(404).json({ error: "Member not found" });
+    const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({ error: "Invalid team member ID" });
+
+    const member = await OurTeam.findByIdAndDelete(id);
+    if (!member) return res.status(404).json({ error: "Team member not found" });
 
     res.status(200).json({ message: "Team member deleted" });
   } catch (err) {
