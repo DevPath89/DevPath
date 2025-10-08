@@ -1,8 +1,6 @@
 const express = require("express");
 const cors = require("cors");
 const fileUpload = require("express-fileupload");
-const fs = require("fs");
-const path = require("path");
 require("dotenv").config();
 
 // DB Connection
@@ -14,24 +12,15 @@ const route = require("./routes/route");
 const app = express();
 
 // -----------------
-// Ensure uploads folder exists
-if (!fs.existsSync("uploads")) {
-  fs.mkdirSync("uploads");
-}
-
-// -----------------
 // Middleware
 app.use(express.json()); // Parse JSON
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "*", // frontend URL allow karo
+    origin: process.env.FRONTEND_URL || "*",
     credentials: true,
   })
 );
-app.use(fileUpload());
-
-// Serve static files for uploaded videos/images
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use(fileUpload({ useTempFiles: true, tempFileDir: "/tmp/" })); // Cloudinary uploads
 
 // -----------------
 // Connect DB

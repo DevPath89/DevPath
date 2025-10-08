@@ -1,12 +1,5 @@
 const OurTeam = require("../models/OurTeam");
-const path = require("path");
-const fs = require("fs");
-
-// Ensure uploads folder exists
-const uploadsDir = path.join(__dirname, "..", "uploads");
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-}
+const cloudinary = require("../config/cloudinary"); // Make sure you have this config file
 
 // ✅ Add Team Member
 exports.addTeamMember = async (req, res) => {
@@ -25,13 +18,17 @@ exports.addTeamMember = async (req, res) => {
     }
 
     const imageFile = req.files.image;
-    const imageName = Date.now() + path.extname(imageFile.name);
-    const uploadPath = path.join(uploadsDir, imageName);
 
-    // Save image to uploads folder
-    await imageFile.mv(uploadPath);
+    // Upload image to Cloudinary
+    const uploadedImage = await cloudinary.uploader.upload(imageFile.tempFilePath, {
+      folder: "team" // Optional folder name in Cloudinary
+    });
 
-    const member = new OurTeam({ name, position, image: imageName });
+    const member = new OurTeam({
+      name,
+      position,
+      image: uploadedImage.secure_url, // Save Cloudinary URL
+    });
     await member.save();
 
     res.status(201).json({ message: "Team member added", member });
@@ -60,10 +57,12 @@ exports.updateTeamMember = async (req, res) => {
 
     if (req.files && req.files.image) {
       const imageFile = req.files.image;
-      const imageName = Date.now() + path.extname(imageFile.name);
-      const uploadPath = path.join(uploadsDir, imageName);
-      await imageFile.mv(uploadPath);
-      updateData.image = imageName;
+
+      // Upload new image to Cloudinary
+      const uploadedImage = await cloudinary.uploader.upload(imageFile.tempFilePath, {
+        folder: "team"
+      });
+      updateData.image = uploadedImage.secure_url;
     }
 
     const member = await OurTeam.findByIdAndUpdate(req.params.id, updateData, { new: true });
