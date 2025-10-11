@@ -26,8 +26,8 @@ app.use(
   })
 );
 
-// ✅ Handle OPTIONS preflight manually (important for Render + Netlify)
-app.options("*", cors({
+// ✅ Handle OPTIONS preflight (Express 5+ compatible)
+app.options(/.*/, cors({
   origin: allowedOrigin,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
