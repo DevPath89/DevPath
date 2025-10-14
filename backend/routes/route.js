@@ -23,6 +23,7 @@ const {
   addLecture,
   updateLecture,
   deleteLecture,
+  uploadVideo, // ✅ Added upload controller
 } = require("../controller/lectureController");
 
 // -----------------
@@ -47,6 +48,9 @@ router.get("/api/lectures", getLectures);
 router.post("/api/lectures", addLecture);
 router.put("/api/lectures/:id", updateLecture);
 router.delete("/api/lectures/:id", deleteLecture);
+
+// ✅ New Video Upload Route
+router.post("/api/upload", uploadVideo);
 
 // -----------------
 // Dashboard Counts
@@ -86,7 +90,6 @@ router.put("/api/users/:id", async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Validate MongoDB ID
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ error: "Invalid user ID" });
     }
@@ -105,7 +108,6 @@ router.delete("/api/users/:id", async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Validate MongoDB ID
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ error: "Invalid user ID" });
     }
@@ -121,7 +123,6 @@ router.delete("/api/users/:id", async (req, res) => {
 });
 
 // -----------------
-// Facts Section API
 router.get("/api/facts", (req, res) => {
   res.status(200).json({
     students: 0,
@@ -130,12 +131,6 @@ router.get("/api/facts", (req, res) => {
     assistance: 0,
   });
 });
-
-// // -----------------
-// // Catch-All for Undefined API Routes
-// router.use("/api/*", (req, res) => {
-//   res.status(404).json({ error: "API route not found" });
-// });
 
 // -----------------
 module.exports = router;

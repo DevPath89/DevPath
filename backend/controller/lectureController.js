@@ -1,4 +1,5 @@
 const Lecture = require("../models/Lecture");
+const cloudinary = require("../config/cloudinary"); // ✅ Ensure this file exists
 
 // 📌 Get all lectures
 exports.getLectures = async (req, res) => {
@@ -47,11 +48,23 @@ exports.deleteLecture = async (req, res) => {
   }
 };
 
-// 📌 Upload video
-exports.uploadVideo = (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ error: "No file uploaded" });
+// 📌 Upload video (✅ using Cloudinary)
+exports.uploadVideo = async (req, res) => {
+  try {
+    if (!req.files || !req.files.video) {
+      return res.status(400).json({ error: "No video file uploaded" });
+    }
+
+    const file = req.files.video;
+
+    const result = await cloudinary.uploader.upload(file.tempFilePath, {
+      resource_type: "video",
+      folder: "lectures",
+    });
+
+    res.json({ videoUrl: result.secure_url });
+  } catch (err) {
+    console.error("❌ Upload error:", err);
+    res.status(500).json({ error: "Error uploading video" });
   }
-  const videoUrl = `http://localhost:5000/uploads/${req.file.filename}`;
-  res.json({ videoUrl });
 };

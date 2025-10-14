@@ -26,16 +26,22 @@ app.use(
   })
 );
 
-// ✅ Handle OPTIONS preflight (Express 5+ compatible)
-app.options(/.*/, cors({
-  origin: allowedOrigin,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-  credentials: true,
-}));
+// ✅ Handle OPTIONS preflight
+app.options(
+  /.*/,
+  cors({
+    origin: allowedOrigin,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  })
+);
 
 // ✅ File upload middleware
 app.use(fileUpload({ useTempFiles: true, tempFileDir: "/tmp/" }));
+
+// ✅ Serve static uploads (if not using Cloudinary)
+app.use("/uploads", express.static("uploads"));
 
 // -----------------
 // Connect DB
